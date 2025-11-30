@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>My Library</h2>
+<hr>
+
+{% if games %}
+<div class="row">
+    {% for game in games %}
+    <div class="col-md-3 mb-4">
+        <div class="card h-100">
+
+            {% if game.cover_image %}
+            <img src="{{ game.cover_image }}" class="card-img-top" alt="{{ game.title }}">
+            {% endif %}
+
+            <div class="card-body">
+                <h5 class="card-title">{{ game.title }}</h5>
+                <p class="text-muted">{{ game.get_status_display }}</p>
+            </div>
+
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p>You have no saved games yet.</p>
+{% endif %}
+
+{% endblock %}

@@ -21,4 +21,4 @@ def detail_view(request, rawg_id):
 @login_required
 def my_library(request):
     games = SavedGame.objects.filter(user=request.user)
-    return render(request, "library/my_library.html", {"games: games"})
+    return render(request, "library/my_library.html", {"games": games})
