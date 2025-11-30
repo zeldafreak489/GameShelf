@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+  <form method="get">
+    <input name="q" value="{{ query }}" placeholder="Search games...">
+    <button type="submit">Search</button>
+  </form>
+
+  {% if results %}
+    <ul>
+      {% for g in results %}
+        <li>
+          <a href="{% url 'library:detail' g.id %}">{{ g.name }}</a>
+          {% if g.released %} - {{ g.released }}{% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,11 @@
+<!doctype html>
+<html>
+  <head><meta charset="utf-8"><title>VG App</title></head>
+  <body>
+    <div style="max-width:900px;margin:0 auto;padding:1rem;">
+      <a href="{% url 'library:search' %}">Search</a>
+      <hr/>
+      {% block content %}{% endblock %}
+    </div>
+  </body>
+</html>

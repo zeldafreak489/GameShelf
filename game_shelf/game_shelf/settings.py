@@ -1,8 +1,16 @@
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load .env
+load_dotenv(BASE_DIR / ".env")
+
+# Secret key for connecting to RAWG API
+RAWG_API_KEY = os.getenv("RAWG_API_KEY")
+RAWG_API_BASE = "https://api.rawg.io/api"
 
 
 # Quick-start development settings - unsuitable for production
@@ -14,9 +22,7 @@ SECRET_KEY = 'django-insecure-!gc0=&0bk#o5*89k69yc=!($_u8sv4zlvl6&x@ksfc!$zw)7xz
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# Secret key for connecting to RAWG API
-RAWG_API_KEY = os.environ.get("RAWG_API_KEY", "")
-RAWG_API_BASE = "https://api.rawg.io/api"
+
 
 ALLOWED_HOSTS = []
 

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>{{ game.name }}</h1>
+  {% if game.background_image %}
+    <img src="{{ game.background_image }}" alt="{{ game.name }}" style="max-width:300px;">
+  {% endif %}
+  <p>Released: {{ game.released }}</p>
+  <p>Platforms:
+    {% for p in game.platforms %}{{ p.platform.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+  </p>
+{% endblock %}
