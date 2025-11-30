@@ -1,18 +1,48 @@
 {% extends "base.html" %}
 {% block content %}
-  <form method="get">
-    <input name="q" value="{{ query }}" placeholder="Search games...">
-    <button type="submit">Search</button>
-  </form>
+<h2>Search Results{% if query %} for "{{ query }}"{% endif %}</h2>
+<hr>
 
-  {% if results %}
-    <ul>
-      {% for g in results %}
-        <li>
-          <a href="{% url 'library:detail' g.id %}">{{ g.name }}</a>
-          {% if g.released %} - {{ g.released }}{% endif %}
-        </li>
-      {% endfor %}
-    </ul>
-  {% endif %}
+{% if results %}
+<div class="row">
+    {% for game in results %}
+    <div class="col-md-3 mb-4">
+        <div class="card h-100">
+            <a href="{% url 'library:detail' game.id %}">
+                {% if game.background_image %}
+                <img src="{{ game.background_image }}" class="card-img-top" alt="{{ game.name }}">
+                {% endif %}
+            </a>
+            <div class="card-body">
+                <h5 class="card-title">
+                    <a href="{% url 'library:detail' game.id %}" class="text-decoration-none text-dark">
+                        {{ game.name }}
+                    </a>
+                </h5>
+                <p class="text-muted">Released: {{ game.released }}</p>
+
+                {% if user.is_authenticated %}
+                <form method="post" action="{% url 'library:add_to_library' game.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="title" value="{{ game.name }}">
+                    <input type="hidden" name="cover" value="{{ game.background_image }}">
+                    <select name="status" class="form-select mb-2">
+                        <option value="want">Want to Play</option>
+                        <option value="playing">Currently Playing</option>
+                        <option value="played">Played</option>
+                    </select>
+                    <button class="btn btn-primary btn-sm w-100" type="submit">Add to Library</button>
+                </form>
+                {% else %}
+                <p><a href="{% url 'accounts:login' %}">Log in</a> to add to library</p>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p>No results found.</p>
+{% endif %}
 {% endblock %}

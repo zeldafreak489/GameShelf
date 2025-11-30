@@ -11,7 +11,10 @@ def rawg_search(query, page=1, page_size=20):
         params["key"] = KEY
     resp = requests.get(url, params=params, timeout=10)
     resp.raise_for_status()
-    return resp.json()
+    data = resp.json()
+
+    # Only return the list of games
+    return data.get("results", [])
 
 def rawg_game_detail(rawg_id):
     url = f"{BASE}/games/{rawg_id}"

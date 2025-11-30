@@ -3,15 +3,15 @@ from .utils import rawg_search, rawg_game_detail
 from django.contrib.auth.decorators import login_required
 from .models import SavedGame
 from django.contrib import messages
+from types import SimpleNamespace
 
 # View for search results from RAWG API
 def search_view(request):
-    q = request.GET.get("q", "")
+    query = request.GET.get("q", "")
     results = []
-    if q:
-        data = rawg_search(q)
-        results = data.get("results", [])
-    return render(request, "library/search.html", {"query": q, "results": results})
+    if query:
+        results = [SimpleNamespace(**g) for g in rawg_search(query) if g.get("id")]
+    return render(request, "library/search.html", {"results": results, "query": query})
 
 # View for details of game from RAWG API
 def detail_view(request, rawg_id):
