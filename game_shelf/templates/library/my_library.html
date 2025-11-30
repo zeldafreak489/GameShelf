@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-
 {% block content %}
 <h2>My Library</h2>
 <hr>
@@ -9,16 +8,19 @@
     {% for game in games %}
     <div class="col-md-3 mb-4">
         <div class="card h-100">
-
-            {% if game.cover_image %}
-            <img src="{{ game.cover_image }}" class="card-img-top" alt="{{ game.title }}">
-            {% endif %}
-
+            <a href="{% url 'library:detail' game.rawg_id %}">
+                {% if game.cover_image %}
+                <img src="{{ game.cover_image }}" class="card-img-top" alt="{{ game.title }}">
+                {% endif %}
+            </a>
             <div class="card-body">
-                <h5 class="card-title">{{ game.title }}</h5>
+                <h5 class="card-title">
+                    <a href="{% url 'library:detail' game.rawg_id %}" class="text-decoration-none text-dark">
+                        {{ game.title }}
+                    </a>
+                </h5>
                 <p class="text-muted">{{ game.get_status_display }}</p>
             </div>
-
         </div>
     </div>
     {% endfor %}

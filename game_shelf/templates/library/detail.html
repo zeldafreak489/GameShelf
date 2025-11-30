@@ -1,11 +1,36 @@
 {% extends "base.html" %}
 {% block content %}
-  <h1>{{ game.name }}</h1>
-  {% if game.background_image %}
-    <img src="{{ game.background_image }}" alt="{{ game.name }}" style="max-width:300px;">
-  {% endif %}
-  <p>Released: {{ game.released }}</p>
-  <p>Platforms:
-    {% for p in game.platforms %}{{ p.platform.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
-  </p>
+<h1>{{ game.name }}</h1>
+
+{% if game.background_image %}
+<img src="{{ game.background_image }}" alt="{{ game.name }}" style="max-width:300px;">
+{% endif %}
+
+<p>Released: {{ game.released }}</p>
+<p>Platforms:
+  {% for p in game.platforms %}{{ p.platform.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+</p>
+
+<!-- Save to library form -->
+{% if user.is_authenticated %}
+<form method="post" action="{% url 'library:add_to_library' game.id %}">
+    {% csrf_token %}
+    <input type="hidden" name="title" value="{{ game.name }}">
+    <input type="hidden" name="cover" value="{{ game.background_image }}">
+
+    <label for="status">Status:</label>
+    <select name="status" id="status" class="form-select mb-2">
+        <option value="want" {% if saved_game and saved_game.status == 'want' %}selected{% endif %}>Want to Play</option>
+        <option value="playing" {% if saved_game and saved_game.status == 'playing' %}selected{% endif %}>Currently Playing</option>
+        <option value="played" {% if saved_game and saved_game.status == 'played' %}selected{% endif %}>Played</option>
+    </select>
+
+    <button class="btn btn-primary" type="submit">
+        {% if saved_game %}Update{% else %}Add to Library{% endif %}
+    </button>
+</form>
+{% else %}
+<p><a href="{% url 'accounts:login' %}">Log in</a> to add this game to your library.</p>
+{% endif %}
+
 {% endblock %}
