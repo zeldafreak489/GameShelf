@@ -22,6 +22,10 @@ SECRET_KEY = 'django-insecure-!gc0=&0bk#o5*89k69yc=!($_u8sv4zlvl6&x@ksfc!$zw)7xz
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# Media settings for profile pictures
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 
 
 ALLOWED_HOSTS = []

@@ -1,7 +1,10 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
-from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
+from .forms import UserUpdateForm, ProfileUpdateForm
 
 # view for signup
 def signup_view(request):
@@ -44,3 +47,37 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect("home")
+
+# View for Profile
+@login_required
+def profile(request):
+    if request.method == "POST":
+        u_form = UserUpdateForm(request.POST, instance=request.user)
+        p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
+        pwd_form = PasswordChangeForm(request.user, request.POST)
+
+        if 'update_profile' in request.POST:
+            if u_form.is_valid() and p_form.is_valid():
+                u_form.save()
+                p_form.save()
+                messages.success(request, "Your profile has been updated!")
+                return redirect('accounts:profile')
+        elif 'change_password' in request.POST:
+            if pwd_form.is_valid():
+                user = pwd_form.save()
+                update_session_auth_hash(request, user)
+                messages.success(request, "Your password has been changed!")
+                return redirect('accounts:profile')
+            
+    else: 
+        u_form = UserUpdateForm(instance=request.user)
+        p_form = ProfileUpdateForm(instance=request.user.profile)
+        pwd_form = PasswordChangeForm(request.user)
+
+    context = {
+        'u_form': u_form,
+        'p_form': p_form,
+        'pwd_form': pwd_form,
+    }
+
+    return render(request, 'accounts/profile.html', context)
