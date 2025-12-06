@@ -33,4 +33,23 @@
 <p><a href="{% url 'accounts:login' %}">Log in</a> to add this game to your library.</p>
 {% endif %}
 
+<h3>Reviews</h3>
+{% if reviews %}
+    {% for review in reviews %}
+        <div class="border p-2 mb-2">
+            <strong>{{ review.user.username }}</strong> - {{ review.rating }} / 5.00
+            <p>{{ review.comment }}</p>
+            <small>{{ review.created_at }}</small>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>No reviews yet.</p>
+{% endif %}
+
+{% if user.is_authenticated %}
+    <a href="{% url 'library:add_review' game.id %}" class="btn btn-sm btn-outline-primary">Add/Edit Your Review</a>
+{% else %}
+    <p><a href="{% url 'accounts:login' %}">Log in</a> to add a review</p>
+{% endif %}
+
 {% endblock %}

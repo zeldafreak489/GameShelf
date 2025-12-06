@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Review Game</h2>
+
+<form method="post">
+    {% csrf_token %}
+
+    <!-- Rating dropdown -->
+    <div class="mb-3">
+        {{ form.rating.label_tag }}
+        {{ form.rating }}
+    </div>
+
+    <!-- Comment -->
+    <div class="mb-3">
+        {{ form.comment.label_tag }}
+        {{ form.comment }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit Review</button>
+</form>
+
+{% endblock %}

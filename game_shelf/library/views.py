@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .utils import rawg_search, rawg_game_detail
 from django.contrib.auth.decorators import login_required
 from .models import SavedGame
@@ -6,6 +6,8 @@ from django.contrib import messages
 from types import SimpleNamespace
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from .models import Review
+from .forms import ReviewForm
 
 # View for search results from RAWG API
 def search_view(request):
@@ -40,11 +42,13 @@ def detail_view(request, rawg_id):
         except SavedGame.DoesNotExist:
             saved_game = None
 
-    return render(
-        request, 
-        "library/detail.html", 
-        {"game": game, "saved_game": saved_game}, 
-    )
+    reviews = Review.objects.filter(rawg_id=rawg_id).order_by("-created_at")
+
+    return render(request, "library/detail.html", {
+            "game": game,
+            "saved_game": saved_game,
+            "reviews": reviews,
+    })
 
 # View for saved games in user's Library, login required
 @login_required
@@ -79,3 +83,30 @@ def add_to_library(request, rawg_id):
         "rawg_id": rawg_id,
         "status": saved_game.status,
     })
+
+# View for rating and reviewing games
+@login_required
+def add_review(request, rawg_id):
+    try:
+        review = Review.objects.get(user=request.user, rawg_id=rawg_id)
+    except Review.DoesNotExist:
+        review = None
+
+    if request.method == 'POST':
+        form = ReviewForm(request.POST, instance=review)
+        if form.is_valid():
+            new_review = form.save(commit=False)
+            new_review.user = request.user
+            new_review.rawg_id = rawg_id
+            new_review.save()
+            messages.success(request, "Your review has been saved!")
+            return redirect('library:detail', rawg_id=rawg_id)
+    else:
+        form = ReviewForm(instance=review)
+
+    # Pass the star range to the template
+    stars = [x / 4 for x in range(0, 21)]
+
+    return render(request, 'library/add_review.html', {'form': form, 'rawg_id': rawg_id, 'stars': stars})
+
+
