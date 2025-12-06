@@ -1,6 +1,120 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Welcome to GameShelf</h1>
-<p>Search for video games and build your library!</p>
+
+<!-- Hero Section -->
+<div class="p-5 mb-4 bg-dark text-light rounded-3 shadow-sm">
+    <div class="container py-5">
+        <h1 class="display-4 fw-bold">Welcome to GameShelf</h1>
+        <p class="lead mt-3">
+            Discover new games, organize your collection, rate your favorites, and build the perfect gaming library.
+        </p>
+        <a href="{% url 'library:search' %}" class="btn btn-primary btn-lg mt-3">
+            🔍 Start Exploring
+        </a>
+    </div>
+</div>
+
+<!--Game Carousel-->
+<div class="swiper mySwiper">
+  <div class="swiper-wrapper">
+    {% for game in games %}
+      <div class="swiper-slide">
+        <div class="card h-100" style="width: 16rem;">
+          <a href="{% url 'library:detail' game.rawg_id %}">
+            <img src="{{ game.cover_image }}" class="card-img-top" alt="{{ game.title }}" style="height:180px; object-fit:cover;">
+          </a>
+          <div class="card-body">
+            <h6 class="card-title mb-0">{{ game.title }}</h6>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="swiper-button-next"></div>
+  <div class="swiper-button-prev"></div>
+  <div class="swiper-pagination"></div>
+</div>
+
+
+<!-- Features Section -->
+<div class="row text-center mt-5">
+
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-body">
+                <h3 class="card-title">🎮 Vast Game Database</h3>
+                <p class="card-text text-muted">
+                    Search thousands of games from the RAWG database and discover something new every day.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-body">
+                <h3 class="card-title">📚 Build Your Library</h3>
+                <p class="card-text text-muted">
+                    Keep track of what you’re playing, what you love, and what you want to play next.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-body">
+                <h3 class="card-title">⭐ Rate & Review</h3>
+                <p class="card-text text-muted">
+                    Leave quarter-star ratings and personalized reviews to curate your perfect collection.
+                </p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Call to Action -->
+<div class="text-center mt-5 mb-5">
+    {% if not user.is_authenticated %}
+        <h4 class="fw-bold mb-3">Join GameShelf Today</h4>
+        <p class="text-muted mb-4">Create your account to start building your ultimate gaming library.</p>
+        <a href="{% url 'accounts:signup' %}" class="btn btn-success btn-lg">
+            Create Account
+        </a>
+    {% else %}
+        <h4 class="fw-bold mb-3">Ready to play?</h4>
+        <p class="text-muted mb-4">Jump into your library or discover new titles to explore.</p>
+        <a href="{% url 'library:my_library' %}" class="btn btn-primary btn-lg me-2">My Library</a>
+        <a href="{% url 'library:search' %}" class="btn btn-outline-dark btn-lg">Search Games</a>
+    {% endif %}
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var swiper = new Swiper(".mySwiper", {
+      slidesPerView: 4,
+      spaceBetween: 20,
+      loop: true,
+      pagination: {
+        el: ".swiper-pagination",
+        clickable: true,
+      },
+      navigation: {
+        nextEl: ".swiper-button-next",
+        prevEl: ".swiper-button-prev",
+      },
+      breakpoints: {
+        0: { slidesPerView: 1 },
+        600: { slidesPerView: 2 },
+        900: { slidesPerView: 3 },
+        1200: { slidesPerView: 4 }
+      }
+    });
+  });
+</script>
+
+
 {% endblock %}

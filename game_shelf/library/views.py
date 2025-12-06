@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from .utils import rawg_search, rawg_game_detail
 from django.contrib.auth.decorators import login_required
 from .models import SavedGame
@@ -108,5 +108,3 @@ def add_review(request, rawg_id):
     stars = [x / 4 for x in range(0, 21)]
 
     return render(request, 'library/add_review.html', {'form': form, 'rawg_id': rawg_id, 'stars': stars})
-
-
