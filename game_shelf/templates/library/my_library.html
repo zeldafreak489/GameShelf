@@ -3,11 +3,34 @@
 <h2>My Library</h2>
 <hr>
 
+<!-- Shelf Filter Buttons -->
+<div class="d-flex gap-2 mb-4">
+    <a href="{% url 'library:my_library' %}"
+       class="btn btn-secondary {% if not active_shelf %}active{% endif %}">
+       All
+    </a>
+
+    <a href="?shelf=want"
+       class="btn btn-outline-primary {% if active_shelf == 'want' %}active{% endif %}">
+       Want to Play
+    </a>
+
+    <a href="?shelf=playing"
+       class="btn btn-outline-primary {% if active_shelf == 'playing' %}active{% endif %}">
+       Currently Playing
+    </a>
+
+    <a href="?shelf=played"
+       class="btn btn-outline-primary {% if active_shelf == 'played' %}active{% endif %}">
+       Played
+    </a>
+</div>
+
 {% if games %}
 <div class="row">
     {% for game in games %}
     <div class="col-md-3 mb-4">
-        <div class="card h-100">
+        <div class="card h-100" data-id="{{ game.rawg_id }}">
             <a href="{% url 'library:detail' game.rawg_id %}">
                 {% if game.cover_image %}
                 <img src="{{ game.cover_image }}" class="card-img-top" alt="{{ game.title }}">
@@ -19,7 +42,18 @@
                         {{ game.title }}
                     </a>
                 </h5>
-                <p class="text-muted">{{ game.get_status_display }}</p>
+
+                <!-- Shelf Dropdown -->
+                <form class="shelfForm" data-rawg-id="{{ game.rawg_id }}">
+                    {% csrf_token %}
+                    <select name="status">
+                        <option value="want" {% if game.shelf == 'want' %}selected{% endif %}>Want to Play</option>
+                        <option value="playing" {% if game.shelf == 'playing' %}selected{% endif %}>Currently Playing</option>
+                        <option value="played" {% if game.shelf == 'played' %}selected{% endif %}>Played</option>
+                    </select>
+                </form>
+
+                <p class="text-muted">Status: <span class="shelf-label">{{ game.get_shelf_display }}</span></p>
             </div>
         </div>
     </div>
@@ -28,5 +62,39 @@
 {% else %}
 <p>You have no saved games yet.</p>
 {% endif %}
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    document.querySelectorAll(".shelfForm select").forEach(select => {
+        select.addEventListener("change", (e) => {
+            const form = e.target.closest("form");
+            const rawg_id = form.dataset.rawgId;
+            const csrftoken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+            const shelf = e.target.value;
+
+            fetch(`/library/game/${rawg_id}/update_shelf/`, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": csrftoken,
+                    "X-Requested-With": "XMLHttpRequest",
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: `status=${shelf}`
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // Optionally update UI
+                    console.log("Shelf updated!");
+                } else {
+                    alert(data.error);
+                }
+            });
+        });
+    });
+});
+</script>
 
 {% endblock %}

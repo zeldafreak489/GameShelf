@@ -1,4 +1,3 @@
-import json
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
@@ -9,6 +8,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from .forms import UserUpdateForm, ProfileUpdateForm
 from .models import Follow
 from django.shortcuts import get_object_or_404
+from library.models import SavedGame, Review
 
 # view for signup
 def signup_view(request):
@@ -89,23 +89,37 @@ def account_settings(request):
 # View for User Profile
 @login_required
 def user_profile(request, username):
-    user = get_object_or_404(User, username=username)
+    profile_user = get_object_or_404(User, username=username)
+
+    follower_count = Follow.objects.filter(following=profile_user).count()
+    following_count = Follow.objects.filter(follower=profile_user).count()
 
     is_following = False
     if request.user.is_authenticated:
         is_following = Follow.objects.filter(
             follower=request.user,
-            following=user
+            following=profile_user
         ).exists()
 
-    follower_count = Follow.objects.filter(following=user).count()
-    following_count = Follow.objects.filter(follower=user).count()
+    # Game stats
+    want_count = SavedGame.objects.filter(user=profile_user, status="want").count()
+    playing_count = SavedGame.objects.filter(user=profile_user, status="playing").count()
+    played_count = SavedGame.objects.filter(user=profile_user, status="played").count()
+
+    # Reviews + Ratings
+    review_count = Review.objects.filter(user=profile_user).count()
+    rating_count = Review.objects.filter(user=profile_user, rating__isnull=False).count()
 
     context = {
-        "profile_user": user,
-        "is_following": is_following,
+        "profile_user": profile_user,
         "follower_count": follower_count,
         "following_count": following_count,
+        "is_following": is_following,
+        "want_count": want_count,
+        "playing_count": playing_count,
+        "played_count": played_count,
+        "review_count": review_count,
+        "rating_count": rating_count,
     }
 
     return render(request, "accounts/user_profile.html", context)

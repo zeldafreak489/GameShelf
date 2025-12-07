@@ -1,32 +1,95 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>{{ profile_user.username }}</h2>
+<div class="container text-center">
 
-<p>
-    Followers: <span id="followerCount">{{ follower_count }}</span> |
-    Following: {{ following_count }}
-</p>
+    <div class="card shadow-sm mx-auto p-4" style="max-width: 500px;">
 
-{% if user != profile_user %}
-<form id="followForm" method="post" action="{% url 'accounts:follow_toggle' profile_user.username %}">
-    {% csrf_token %}
-    <button type="submit" id="followBtn" class="btn btn-primary">
-        {% if is_following %}Unfollow{% else %}Follow{% endif %}
-    </button>
-</form>
-{% endif %}
+        <!-- Profile Image -->
+        <img
+            src="{{ profile_user.profile.profile_picture.url }}"
+            class="rounded-circle mx-auto mb-3"
+            width="120" height="120"
+            style="object-fit: cover;"
+        >
 
+        <!-- Username -->
+        <h3 class="mb-2">{{ profile_user.username }}</h3>
+
+        <!-- Followers / Following -->
+        <div class="d-flex justify-content-center gap-4 my-2">
+            <div>
+                <strong id="followerCount">{{ follower_count }}</strong>
+                <div class="text-muted small">Followers</div>
+            </div>
+            <div>
+                <strong>{{ following_count }}</strong>
+                <div class="text-muted small">Following</div>
+            </div>
+        </div>
+
+        <!-- Game Stats -->
+        <div class="row text-center my-3">
+            <div class="col">
+                <strong>{{ want_count }}</strong>
+                <div class="small text-muted">
+                    <a href="{% url 'library:my_library' %}?shelf=want">Want to Play</a>
+                </div>
+            </div>
+            <div class="col">
+                <strong>{{ playing_count }}</strong>
+                <div class="small text-muted">
+                    <a href="{% url 'library:my_library' %}?shelf=playing">Currently Playing</a>
+                </div>
+            </div>
+            <div class="col">
+                <strong>{{ played_count }}</strong>
+                <div class="small text-muted">
+                    <a href="{% url 'library:my_library' %}?shelf=played">Played</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reviews / Ratings -->
+        <div class="row text-center my-2">
+            <div class="col">
+                <strong>{{ review_count }}</strong>
+                <div class="small text-muted">Reviews</div>
+            </div>
+            <div class="col">
+                <strong>{{ rating_count }}</strong>
+                <div class="small text-muted">Ratings</div>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        {% if user != profile_user %}
+        <form id="followForm" method="post" action="{% url 'accounts:follow_toggle' profile_user.username %}">
+            {% csrf_token %}
+            <button type="submit" id="followBtn" class="btn btn-primary w-100 mt-2">
+                {% if is_following %}Unfollow{% else %}Follow{% endif %}
+            </button>
+        </form>
+        {% else %}
+        <a href="{% url 'accounts:settings' %}" class="btn btn-outline-secondary w-100 mt-2">
+            Edit Profile
+        </a>
+        {% endif %}
+
+    </div>
+</div>
+
+<!-- Your JS remains the same -->
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("followForm");
-    if (!form) return;  // user is viewing their own profile
+    if (!form) return;
 
     const btn = document.getElementById("followBtn");
     const csrftoken = form.querySelector('[name=csrfmiddlewaretoken]').value;
 
     form.addEventListener("submit", (e) => {
-        e.preventDefault(); // prevent page reload
+        e.preventDefault();
 
         fetch(form.action, {
             method: "POST",
@@ -38,15 +101,10 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(res => res.json())
         .then(data => {
             if (data.status) {
-                // Update button text
                 btn.textContent = data.status === "followed" ? "Unfollow" : "Follow";
-                // Update follower count
                 document.getElementById("followerCount").textContent = data.follower_count;
-            } else if (data.error) {
-                alert(data.error);
             }
-        })
-        .catch(err => console.error(err));
+        });
     });
 });
 </script>

@@ -78,8 +78,12 @@ def detail_view(request, rawg_id):
 # View for saved games in user's Library, login required
 @login_required
 def my_library(request):
+    shelf = request.GET.get("shelf")
     games = SavedGame.objects.filter(user=request.user)
-    return render(request, "library/my_library.html", {"games": games})
+
+    if shelf in ["want", "playing", "played"]:
+        games = games.filter(shelf=shelf)
+    return render(request, "library/my_library.html", {"games": games, "active_shelf": shelf})
 
 # View for adding game to library, login required
 @login_required
@@ -87,18 +91,18 @@ def my_library(request):
 def add_to_library(request, rawg_id):
     title = request.POST.get("title")
     cover = request.POST.get("cover")
-    status = request.POST.get("status", "want")
+    shelf = request.POST.get("status", "want")
 
     saved_game, created = SavedGame.objects.get_or_create(
         user=request.user,
         rawg_id=rawg_id,
-        defaults={"title": title, "cover_image": cover, "status": status},
+        defaults={"title": title, "cover_image": cover, "shelf": shelf},
     )
 
     if not created:
-        saved_game.status = status
+        saved_game.shelf = shelf
         saved_game.save()
-        message = f"{title} status is updated in your library!"
+        message = f"{title} shelf updated!"
     else:
         message = f"{title} added to your library!"
 
@@ -106,7 +110,7 @@ def add_to_library(request, rawg_id):
         "success": True,
         "message": message,
         "rawg_id": rawg_id,
-        "status": saved_game.status,
+        "shelf": saved_game.get_shelf_display(),
     })
 
 # View for rating and reviewing games
@@ -133,3 +137,16 @@ def add_review(request, rawg_id):
     stars = [x / 4 for x in range(0, 21)]
 
     return render(request, 'library/add_review.html', {'form': form, 'rawg_id': rawg_id, 'stars': stars})
+
+# View for updating shelf from my_library.html
+@login_required
+@require_POST
+def update_shelf(request, rawg_id):
+    shelf = request.POST.get("status")
+    try:
+        saved_game = SavedGame.objects.get(user=request.user, rawg_id=rawg_id)
+        saved_game.shelf = shelf
+        saved_game.save()
+        return JsonResponse({"success": True, "shelf": saved_game.shelf})
+    except SavedGame.DoesNotExist:
+        return JsonResponse({"success": False, "error": "Game not in library."}, status=404)

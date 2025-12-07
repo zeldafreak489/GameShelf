@@ -23,6 +23,9 @@ class SavedGame(models.Model):
     cover_image = models.URLField(blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="want")
 
+    # Add shelf to filter games by status for profile
+    shelf = models.CharField(max_length=20, choices=STATUS_CHOICES, default="want")
+
     def __str__(self):
         return f"{self.title} ({self.user.username})"
 
