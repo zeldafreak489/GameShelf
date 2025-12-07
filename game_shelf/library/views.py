@@ -69,11 +69,22 @@ def detail_view(request, rawg_id):
 
     reviews = Review.objects.filter(rawg_id=rawg_id).order_by("-created_at")
 
-    return render(request, "library/detail.html", {
-            "game": game,
-            "saved_game": saved_game,
-            "reviews": reviews,
-    })
+    # Extra info including description, genres, esrb rating, franchises, and system requirements
+    extra_info = {
+        "description": game.get("description_raw", ""),
+        "genres": [g["name"] for g in game.get("genres", [])],
+        "esrb": game.get("esrb_rating", {}).get("name", "N/A"),
+        "franchises": [f["name"] for f in game.get("franchises", [])],
+    }
+
+    context = {
+        "game": game,
+        "saved_game": saved_game,
+        "reviews": reviews,
+        "extra_info": extra_info,
+    }
+
+    return render(request, "library/detail.html", context)
 
 # View for saved games in user's Library, login required
 @login_required

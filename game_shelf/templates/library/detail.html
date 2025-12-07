@@ -42,9 +42,27 @@
     </div>
 </div>
 
+<!-- Extra Game Info -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        {% if extra_info.description %}
+        <p><strong>Description:</strong> {{ extra_info.description|linebreaks }}</p>
+        {% endif %}
+
+        {% if extra_info.genres %}
+        <p><strong>Genres:</strong> {{ extra_info.genres|join:", " }}</p>
+        {% endif %}
+
+        <p><strong>ESRB Rating:</strong> {{ extra_info.esrb }}</p>
+
+        {% if extra_info.franchises %}
+        <p><strong>Franchise:</strong> {{ extra_info.franchises|join:", " }}</p>
+        {% endif %}
+    </div>
+</div>
+
 <!-- Reviews Section -->
 <h3 class="mb-3">Reviews</h3>
-
 {% if reviews %}
 <div class="row g-3">
     {% for review in reviews %}
@@ -58,36 +76,6 @@
                                 {% if s == 'full' %}
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="gold" class="bi bi-star-fill me-1" viewBox="0 0 16 16">
                                         <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73-3.523-3.356c-.329-.314-.158-.888.283-.95l4.898-.696 2.197-4.454c.197-.398.73-.398.927 0l2.197 4.454 4.898.696c.441.062.612.636.283.95l-3.523 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
-                                    </svg>
-                                {% elif s == 'three_quarter' %}
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" class="me-1">
-                                        <defs>
-                                            <clipPath id="clip-3q-{{ forloop.counter0 }}">
-                                                <rect width="12" height="16"/>
-                                            </clipPath>
-                                        </defs>
-                                        <path d="M8 0l2.197 4.454 4.898.696-3.523 3.356.83 4.73L8 13.187 3.611 15.443l.83-4.73-3.523-3.356 4.898-.696L8 0z" fill="gold" clip-path="url(#clip-3q-{{ forloop.counter0 }})"/>
-                                        <path d="M8 0l2.197 4.454 4.898.696-3.523 3.356.83 4.73L8 13.187 3.611 15.443l.83-4.73-3.523-3.356 4.898-.696L8 0z" fill="#ccc" opacity="0.4"/>
-                                    </svg>
-                                {% elif s == 'half' %}
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" class="me-1">
-                                        <defs>
-                                            <clipPath id="clip-half-{{ forloop.counter0 }}">
-                                                <rect width="8" height="16"/>
-                                            </clipPath>
-                                        </defs>
-                                        <path d="M8 0l2.197 4.454 4.898.696-3.523 3.356.83 4.73L8 13.187 3.611 15.443l.83-4.73-3.523-3.356 4.898-.696L8 0z" fill="gold" clip-path="url(#clip-half-{{ forloop.counter0 }})"/>
-                                        <path d="M8 0l2.197 4.454 4.898.696-3.523 3.356.83 4.73L8 13.187 3.611 15.443l.83-4.73-3.523-3.356 4.898-.696L8 0z" fill="#ccc" opacity="0.4"/>
-                                    </svg>
-                                {% elif s == 'quarter' %}
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" class="me-1">
-                                        <defs>
-                                            <clipPath id="clip-quarter-{{ forloop.counter0 }}">
-                                                <rect width="4" height="16"/>
-                                            </clipPath>
-                                        </defs>
-                                        <path d="M8 0l2.197 4.454 4.898.696-3.523 3.356.83 4.73L8 13.187 3.611 15.443l.83-4.73-3.523-3.356 4.898-.696L8 0z" fill="gold" clip-path="url(#clip-quarter-{{ forloop.counter0 }})"/>
-                                        <path d="M8 0l2.197 4.454 4.898.696-3.523 3.356.83 4.73L8 13.187 3.611 15.443l.83-4.73-3.523-3.356 4.898-.696L8 0z" fill="#ccc" opacity="0.4"/>
                                     </svg>
                                 {% else %}
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#ccc" class="bi bi-star me-1" viewBox="0 0 16 16">
