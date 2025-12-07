@@ -1,3 +1,5 @@
+import json
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
@@ -5,6 +7,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from .forms import UserUpdateForm, ProfileUpdateForm
+from .models import Follow
+from django.shortcuts import get_object_or_404
 
 # view for signup
 def signup_view(request):
@@ -48,9 +52,9 @@ def logout_view(request):
     logout(request)
     return redirect("home")
 
-# View for Profile
+# View for Account Settings
 @login_required
-def profile(request):
+def account_settings(request):
     if request.method == "POST":
         u_form = UserUpdateForm(request.POST, instance=request.user)
         p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
@@ -80,4 +84,54 @@ def profile(request):
         'pwd_form': pwd_form,
     }
 
-    return render(request, 'accounts/profile.html', context)
+    return render(request, 'accounts/settings.html', context)
+
+# View for User Profile
+@login_required
+def user_profile(request, username):
+    user = get_object_or_404(User, username=username)
+
+    is_following = False
+    if request.user.is_authenticated:
+        is_following = Follow.objects.filter(
+            follower=request.user,
+            following=user
+        ).exists()
+
+    follower_count = Follow.objects.filter(following=user).count()
+    following_count = Follow.objects.filter(follower=user).count()
+
+    context = {
+        "profile_user": user,
+        "is_following": is_following,
+        "follower_count": follower_count,
+        "following_count": following_count,
+    }
+
+    return render(request, "accounts/user_profile.html", context)
+
+# View for Follow/Unfollow
+@login_required
+def follow_toggle(request, username):
+    if request.method == "POST" and request.headers.get("x-requested-with") == "XMLHttpRequest":
+        target_user = get_object_or_404(User, username=username)
+
+        follow, created = Follow.objects.get_or_create(
+            follower=request.user,
+            following=target_user
+        )
+
+        if not created:
+            follow.delete()
+            status = "unfollowed"
+        else:
+            status = "followed"
+
+        follower_count = Follow.objects.filter(following=target_user).count()
+
+        return JsonResponse({
+            "status": status,
+            "follower_count": follower_count
+        })
+
+    return JsonResponse({"error": "Invalid request"}, status=400)

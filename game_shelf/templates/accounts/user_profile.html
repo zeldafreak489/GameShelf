@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>{{ profile_user.username }}</h2>
+
+<p>
+    Followers: <span id="followerCount">{{ follower_count }}</span> |
+    Following: {{ following_count }}
+</p>
+
+{% if user != profile_user %}
+<form id="followForm" method="post" action="{% url 'accounts:follow_toggle' profile_user.username %}">
+    {% csrf_token %}
+    <button type="submit" id="followBtn" class="btn btn-primary">
+        {% if is_following %}Unfollow{% else %}Follow{% endif %}
+    </button>
+</form>
+{% endif %}
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("followForm");
+    if (!form) return;  // user is viewing their own profile
+
+    const btn = document.getElementById("followBtn");
+    const csrftoken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    form.addEventListener("submit", (e) => {
+        e.preventDefault(); // prevent page reload
+
+        fetch(form.action, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": csrftoken,
+                "X-Requested-With": "XMLHttpRequest"
+            },
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status) {
+                // Update button text
+                btn.textContent = data.status === "followed" ? "Unfollow" : "Follow";
+                // Update follower count
+                document.getElementById("followerCount").textContent = data.follower_count;
+            } else if (data.error) {
+                alert(data.error);
+            }
+        })
+        .catch(err => console.error(err));
+    });
+});
+</script>
+
+{% endblock %}

@@ -17,3 +17,24 @@ def create_or_update_user_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
     instance.profile.save()
+
+# Model for allowing users to follow each other
+class Follow(models.Model):
+    follower = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="following"
+    )
+    following = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="followers"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    # each individual user can only follow another user once
+    class Meta:
+        unique_together = ('follower', 'following')
+
+    def __str__(self):
+        return f"{self.follower} follows {self.following}"
