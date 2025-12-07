@@ -29,7 +29,7 @@
 {% if games %}
 <div class="row">
     {% for game in games %}
-    <div class="col-md-3 mb-4">
+    <div class="col-md-3 mb-4" id="game-card-{{game.rawg_id}}">
         <div class="card h-100" data-id="{{ game.rawg_id }}">
             <a href="{% url 'library:detail' game.rawg_id %}">
                 {% if game.cover_image %}
@@ -51,6 +51,15 @@
                         <option value="playing" {% if game.shelf == 'playing' %}selected{% endif %}>Currently Playing</option>
                         <option value="played" {% if game.shelf == 'played' %}selected{% endif %}>Played</option>
                     </select>
+                </form>
+
+                <!-- Remove Game from Library -->
+                <form class="remove-game-form mt-2"
+                    data-url="{% url 'library:remove_from_library' game.rawg_id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-danger w-100">
+                        Remove
+                    </button>
                 </form>
             </div>
         </div>
@@ -84,7 +93,6 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    // Optionally update UI
                     console.log("Shelf updated!");
                 } else {
                     alert(data.error);
@@ -94,5 +102,38 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 </script>
+
+<!-- JS for removing game from library without reloading -->
+<script>
+document.querySelectorAll(".remove-game-form").forEach(form => {
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const url = form.dataset.url;
+        const csrftoken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        fetch(url, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": csrftoken,
+                "X-Requested-With": "XMLHttpRequest"
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const card = document.getElementById("game-card-" + data.rawg_id);
+                if (card) {
+                    card.remove();
+                }
+            }
+        });
+    });
+});
+</script>
+
+
+
+
 
 {% endblock %}

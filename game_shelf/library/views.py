@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from .utils import rawg_search, rawg_game_detail
 from django.contrib.auth.decorators import login_required
 from .models import SavedGame
@@ -161,3 +161,20 @@ def update_shelf(request, rawg_id):
         return JsonResponse({"success": True, "shelf": saved_game.shelf})
     except SavedGame.DoesNotExist:
         return JsonResponse({"success": False, "error": "Game not in library."}, status=404)
+    
+# Remove game from library
+@login_required
+@require_POST
+def remove_from_library(request, rawg_id):
+    game = get_object_or_404(
+        SavedGame,
+        user=request.user,
+        rawg_id=rawg_id
+    )
+
+    game.delete()
+
+    return JsonResponse({
+        "success": True,
+        "rawg_id": rawg_id,
+    })

@@ -10,4 +10,5 @@ urlpatterns = [
     path("my-library/", views.my_library, name="my_library"),
     path("game/<int:rawg_id>/review/", views.add_review, name="add_review"),
     path('game/<int:rawg_id>/update_shelf/', views.update_shelf, name='update_shelf'),
+    path('game/<int:rawg_id>/remove/', views.remove_from_library, name='remove_from_library')
 ]

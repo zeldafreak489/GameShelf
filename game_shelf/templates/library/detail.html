@@ -22,20 +22,28 @@
         </p>
 
         {% if user.is_authenticated %}
-        <form method="post" action="{% url 'library:add_to_library' game.id %}" class="add-to-library-form mb-3">
-            {% csrf_token %}
-            <div class="mb-2">
-                <label for="status" class="form-label"><strong>Status:</strong></label>
-                <select name="status" id="status" class="form-select">
-                    <option value="want" {% if saved_game and saved_game.shelf == 'want' %}selected{% endif %}>Want to Play</option>
-                    <option value="playing" {% if saved_game and saved_game.shelf == 'playing' %}selected{% endif %}>Currently Playing</option>
-                    <option value="played" {% if saved_game and saved_game.shelf == 'played' %}selected{% endif %}>Played</option>
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary">
-                {% if saved_game %}Update{% else %}Add to Library{% endif %}
-            </button>
-        </form>
+            <form method="post" action="{% url 'library:add_to_library' game.id %}" class="add-to-library-form mb-3">
+                {% csrf_token %}
+                <div class="mb-2">
+                    <label for="status" class="form-label"><strong>Status:</strong></label>
+                    <select name="status" id="status" class="form-select">
+                        <option value="want" {% if saved_game and saved_game.shelf == 'want' %}selected{% endif %}>Want to Play</option>
+                        <option value="playing" {% if saved_game and saved_game.shelf == 'playing' %}selected{% endif %}>Currently Playing</option>
+                        <option value="played" {% if saved_game and saved_game.shelf == 'played' %}selected{% endif %}>Played</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    {% if saved_game %}Update{% else %}Add to Library{% endif %}
+                </button>
+            </form>
+            {% if saved_game %}
+                <form id="removeForm" method="post" action="{% url 'library:remove_from_library' game.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger mt-2">
+                        Remove from Library
+                    </button>
+                </form>
+            {% endif %}
         {% else %}
         <p><a href="{% url 'accounts:login' %}">Log in</a> to add this game to your library.</p>
         {% endif %}
@@ -107,5 +115,26 @@
 {% else %}
 <p class="mt-3"><a href="{% url 'accounts:login' %}">Log in</a> to add a review.</p>
 {% endif %}
+
+<script>
+const form = document.getElementById("removeForm");
+if (form) {
+    const csrftoken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+    form.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        fetch(form.action, {
+            method: "POST",
+            headers: { "X-CSRFToken": csrftoken }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                form.innerHTML = "<span class='text-danger'>Removed</span>";
+            }
+        });
+    });
+}
+</script>
 
 {% endblock %}
