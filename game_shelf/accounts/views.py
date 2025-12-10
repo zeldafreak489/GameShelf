@@ -67,13 +67,13 @@ def account_settings(request):
                 u_form.save()
                 p_form.save()
                 messages.success(request, "Your profile has been updated!")
-                return redirect('accounts:profile')
+                return redirect('accounts:user_profile', username=request.user.username)
         elif 'change_password' in request.POST:
             if pwd_form.is_valid():
                 user = pwd_form.save()
                 update_session_auth_hash(request, user)
                 messages.success(request, "Your password has been changed!")
-                return redirect('accounts:profile')
+                return redirect('accounts:user_profile', username=request.user.username)
             
     else: 
         u_form = UserUpdateForm(instance=request.user)

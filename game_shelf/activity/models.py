@@ -2,6 +2,9 @@
 To address the feedback given on my proposal, I decided to expand this application
 by adding additional features such as a following/friends system, expanded user profiles, and this app, a way to
 track the activities of users and display them on their profile.
+
+The feedback specifically given was that this application should be more than a few pages, and I feel I've expanded
+on my proposal. I didn't include user profiles in my proposal at all.
 """
 
 from django.conf import settings
